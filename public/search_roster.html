@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Roster - Usher Team</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Search Roster</h1>
+            <div style="margin-bottom: 2rem;">
+                <a href="admin.html" style="color: var(--primary-color); text-decoration: none;">&larr; Back to
+                    Dashboard</a>
+            </div>
+
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="searchMonth">Select Month</label>
+                    <select id="searchMonth" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="searchDate">Select Sunday</label>
+                    <select id="searchDate" required>
+                        <option value="">-- Choose Month First --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="searchSession">Select Service Session</label>
+                    <select id="searchSession" required>
+                        <option value="">-- Choose Session --</option>
+                        <option value="1">1st Service (第一堂)</option>
+                        <option value="2">2nd Service (第二堂)</option>
+                        <option value="3">3rd Service (第三堂)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Search</button>
+            </form>
+        </div>
+
+        <div id="searchResult" style="margin-top: 2rem;">
+            <!-- Result Table will appear here -->
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

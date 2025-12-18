@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usher Team Availability</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Usher Team Availability</h1>
+            <form id="availabilityForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone (Last 3 Digits)</label>
+                    <input type="text" id="phone" placeholder="123" maxlength="3" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionSelect">Service Session (堂數)</label>
+                    <select id="sessionSelect" required>
+                        <option value="">-- Choose Session --</option>
+                        <option value="1">1st Service (第一堂)</option>
+                        <option value="2">2nd Service (第二堂)</option>
+                        <option value="3">3rd Service (第三堂)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="monthSelect">Select Month</label>
+                    <select id="monthSelect">
+                        <option value="">-- Choose Month --</option>
+                    </select>
+                </div>
+
+                <div id="dateList">
+                    <!-- Dynamic Sundays will appear here -->
+                </div>
+
+                <button type="submit" class="btn">Submit Availability</button>
+            </form>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
