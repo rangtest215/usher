@@ -3,3 +3,4 @@ data/data.json
 .DS_Store
 Thumbs.db
 .env
+serviceAccountKey.json
