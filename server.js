@@ -13,13 +13,13 @@ if (!process.env.FIREBASE_PRIVATE_KEY) {
 
 let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-// 1. Remove surrounding quotes if the user copied them from .env
+// 1. Remove surrounding quotes if the user copied them from .env or Railway UI
 if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
     privateKey = privateKey.slice(1, -1);
 }
 
 // 2. Handle escaped newlines (turn string "\n" into actual newlines)
-// This is needed if the key was pasted as a single line
+// This is critical for Railway as pasted keys often lose formatting
 if (privateKey.includes('\\n')) {
     privateKey = privateKey.replace(/\\n/g, '\n');
 }
@@ -36,6 +36,7 @@ try {
 } catch (error) {
     console.error('CRITICAL ERROR: Firebase Initialization Failed.');
     console.error('Check your FIREBASE_PRIVATE_KEY format in Railway.');
+    console.error('Ensure it includes -----BEGIN PRIVATE KEY----- and -----END PRIVATE KEY-----');
     console.error(error);
     process.exit(1);
 }
@@ -43,6 +44,7 @@ try {
 const db = admin.firestore();
 
 const app = express();
+// Dynamic Port for Railway
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
@@ -84,23 +86,6 @@ app.post('/api/availability', async (req, res) => {
     const userRef = db.collection('availability').doc(userKey);
 
     try {
-        // Use set with merge to update or create
-        await userRef.set({
-            name,
-            phone,
-            serviceSession,
-            dates: availability // Merging handled by Firestore deep merge? No, 'dates' object replaces. We need deep merge or read-modify-write.
-            // Actually, availability input is partial. If we want to merge dates, we should use dot notation or read first.
-            // For simplicity in this app context, let's read-modify-write or assume client sends full month availability? 
-            // Client sends "availability" which is { "YYYY-MM-DD": true/false }.
-            // If we blindly set dates: availability, we might overwrite other months if we stored them nested.
-            // But here we structure likely as flat map under 'dates'.
-        }, { merge: true });
-
-        // Wait, if we use { merge: true }, top level fields merge. Nested fields like 'dates' might replace the whole object if we pass 'dates': {...}.
-        // To properly merge a map in Firestore, we need dot notation: "dates.2025-01-01": true.
-        // Let's do that transformation.
-
         const updateData = {
             name,
             phone,
@@ -132,8 +117,7 @@ app.post('/api/availability', async (req, res) => {
 
 // Get Roster & Availability (Admin Dashboard & Search)
 app.get('/api/roster', async (req, res) => {
-    const { month } = req.query; // Filter logic can be done client side as before for simplicity, or we can query.
-    // Client expects: { rosters: {}, allAvailability: {} }
+    const { month } = req.query;
 
     try {
         const rostersSnapshot = await db.collection('rosters').get();
@@ -141,7 +125,7 @@ app.get('/api/roster', async (req, res) => {
 
         const rosters = {};
         rostersSnapshot.forEach(doc => {
-            rosters[doc.id] = doc.data(); // doc.id is 'YYYY-MM-DD_session'
+            rosters[doc.id] = doc.data();
         });
 
         const allAvailability = {};
@@ -159,11 +143,10 @@ app.get('/api/roster', async (req, res) => {
 // Save Roster Assignment
 app.post('/api/roster', async (req, res) => {
     const { date, session, positions } = req.body;
-
     const rosterKey = `${date}_${session}`;
 
     try {
-        await db.collection('rosters').doc(rosterKey).set(positions); // Overwrite positions for this session
+        await db.collection('rosters').doc(rosterKey).set(positions);
         res.json({ success: true });
     } catch (e) {
         console.error(e);
