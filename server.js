@@ -6,13 +6,40 @@ const path = require('path');
 require('dotenv').config();
 
 // Initialize Firebase
-admin.initializeApp({
-    credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    })
-});
+if (!process.env.FIREBASE_PRIVATE_KEY) {
+    console.error('CRITICAL ERROR: FIREBASE_PRIVATE_KEY is missing in environment variables!');
+    process.exit(1);
+}
+
+let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+// 1. Remove surrounding quotes if the user copied them from .env
+if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+    privateKey = privateKey.slice(1, -1);
+}
+
+// 2. Handle escaped newlines (turn string "\n" into actual newlines)
+// This is needed if the key was pasted as a single line
+if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n');
+}
+
+try {
+    admin.initializeApp({
+        credential: admin.credential.cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: privateKey
+        })
+    });
+    console.log('Firebase Admin Initialized Successfully');
+} catch (error) {
+    console.error('CRITICAL ERROR: Firebase Initialization Failed.');
+    console.error('Check your FIREBASE_PRIVATE_KEY format in Railway.');
+    console.error(error);
+    process.exit(1);
+}
+
 const db = admin.firestore();
 
 const app = express();
