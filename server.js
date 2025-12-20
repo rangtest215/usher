@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const admin = require('firebase-admin');
 const path = require('path');
+require('dotenv').config()
 
 // Initialize Firebase
 if (!process.env.FIREBASE_PRIVATE_KEY) {
